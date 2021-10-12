@@ -8,7 +8,7 @@ struct Map{
     temp_array: Vec<Vec<u8>>,
     y_max: usize, 
     x_max: usize,
-    fill: u8,
+    _fill: u8,
 }
 
 impl Map {
@@ -18,31 +18,31 @@ impl Map {
     }
 
     fn initmap(y_max: usize, x_max: usize, fill: u8) -> Map {
-        let mut a = vec![vec![1_u8; x_max]; y_max];
-        let b = vec![vec![1_u8; x_max]; y_max];
+        let mut map = vec![vec![1_u8; x_max]; y_max];
+        let temp_array = vec![vec![1_u8; x_max]; y_max];
     
-        for row in a.iter_mut() {
+        for row in map.iter_mut() {
             for col in row.iter_mut() {
                 *col = Map::rand_pick(fill);
             }
         }
-    
-        for y in 0..y_max {
-            a[y][0] = WALL;
-            a[y][x_max - 1] = WALL;
+
+        for row in map.iter_mut().take(y_max){
+            row[0] = WALL;
+            row[x_max - 1] = WALL;
         }
-    
+
         for x in 0..x_max {
-            a[0][x] = WALL;
-            a[y_max - 1][x] = WALL;
+            map[0][x] = WALL;
+            map[y_max - 1][x] = WALL;
         }
 
         Map {
-            map: a,
-            temp_array: b,
+            map,
+            temp_array,
             y_max,
             x_max,
-            fill,
+            _fill: fill,
         }
     }
 
@@ -90,6 +90,12 @@ impl Map {
         }
     }
 
+    fn rep_generation(&mut self, set_map: &SettingsMap){
+        for _ in 0..set_map.reps{
+            self.generation(set_map);
+        }
+    }
+
     fn print_map(&self) {
         for row in self.map.iter() {
             for col in row.iter() {
@@ -125,9 +131,7 @@ fn main() {
     let (y_max, x_max, fill) = (90, 90, 45);
     let mut ant_map = Map::initmap(y_max, x_max, fill);
 
-    for _ in 0..set_ant_map.reps {
-        ant_map.generation(&set_ant_map);
-    }
+    ant_map.rep_generation(&set_ant_map);
 
     ant_map.print_map();
 }
