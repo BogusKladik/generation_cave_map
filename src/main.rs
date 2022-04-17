@@ -1,33 +1,35 @@
-use rand::{self, Rng}; 
+use rand::{self, Rng};
 
 const FREE: u8 = 0;
 const WALL: u8 = 1;
 
-struct Map{
+struct Map {
     map: Vec<Vec<u8>>,
     temp_array: Vec<Vec<u8>>,
-    y_max: usize, 
+    y_max: usize,
     x_max: usize,
     _fill: u8,
 }
 
 impl Map {
-    fn rand_pick(fill: u8) -> u8{
-        if rand::thread_rng()
-            .gen_range(0..=100) < fill {return WALL} FREE
+    fn rand_pick(fill: u8) -> u8 {
+        if rand::thread_rng().gen_range(0..=100) < fill {
+            return WALL;
+        }
+        FREE
     }
 
     fn initmap(y_max: usize, x_max: usize, fill: u8) -> Map {
         let mut map = vec![vec![1_u8; x_max]; y_max];
         let temp_array = vec![vec![1_u8; x_max]; y_max];
-    
+
         for row in map.iter_mut() {
             for col in row.iter_mut() {
                 *col = Map::rand_pick(fill);
             }
         }
 
-        for row in map.iter_mut().take(y_max){
+        for row in map.iter_mut().take(y_max) {
             row[0] = WALL;
             row[x_max - 1] = WALL;
         }
@@ -46,12 +48,12 @@ impl Map {
         }
     }
 
-    fn generation(&mut self, set_map: &SettingsMap){
+    fn generation(&mut self, set_map: &SettingsMap) {
         for y in 1..self.y_max - 1 {
             for x in 1..self.x_max - 1 {
                 let mut r1 = 0;
                 let mut r2 = 0;
-    
+
                 for i in 0..=2 {
                     for j in 0..=2 {
                         if self.map[y + i - 1][x + j - 1] == WALL {
@@ -59,23 +61,23 @@ impl Map {
                         }
                     }
                 }
-    
+
                 for i in y..y + 4 {
                     for j in x..x + 4 {
                         if ((i - y) == 4 || (i - y) == 0) && ((j - x) == 4 || (j - x) == 0) {
                             continue;
                         }
-    
+
                         if i >= self.y_max || j >= self.x_max || i < 2 || j < 2 {
                             continue;
                         }
-    
+
                         if self.map[i - 2][j - 2] == WALL {
                             r2 += 1;
-                        } 
+                        }
                     }
                 }
-    
+
                 if r1 >= set_map.r1 || r2 <= set_map.r2 {
                     self.temp_array[y][x] = WALL;
                 } else {
@@ -90,8 +92,8 @@ impl Map {
         }
     }
 
-    fn rep_generation(&mut self, set_map: &SettingsMap){
-        for _ in 0..set_map.reps{
+    fn rep_generation(&mut self, set_map: &SettingsMap) {
+        for _ in 0..set_map.reps {
             self.generation(set_map);
         }
     }
@@ -110,7 +112,7 @@ impl Map {
     }
 }
 
-struct SettingsMap{
+struct SettingsMap {
     r1: u8,
     r2: u8,
     reps: u8,
@@ -118,11 +120,7 @@ struct SettingsMap{
 
 impl SettingsMap {
     fn new(r1: u8, r2: u8, reps: u8) -> SettingsMap {
-        SettingsMap {
-            r1,
-            r2,
-            reps,
-        }
+        SettingsMap { r1, r2, reps }
     }
 }
 
